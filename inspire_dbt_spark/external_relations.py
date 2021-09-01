@@ -2,14 +2,27 @@ import os
 from dataclasses import dataclass
 from typing import Dict
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, DictLoader, select_autoescape
 
 import logging
+
+templates = {
+    'create_temporary_view.sql': """
+CREATE TEMPORARY VIEW {{ alias }}
+USING {{ source_driver }}
+OPTIONS (
+  {{ relation_type }} '{{ relation }}',
+  {% for opt, val in options.items() %}
+  {{ opt }} '{{ val }}'{%- if not loop.last %},{%- endif %}
+  {% endfor %}
+)
+    """
+}
 
 logger = logging.getLogger(__name__)
 
 env = Environment(
-    loader=PackageLoader(__package__),
+    loader=DictLoader(templates),
     autoescape=select_autoescape(['sql'])
 )
 
