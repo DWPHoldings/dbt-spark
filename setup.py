@@ -56,7 +56,8 @@ setup(
     author_email='info@fishtownanalytics.com',
     url='https://github.com/fishtown-analytics/dbt-spark',
 
-    packages=find_namespace_packages(include=['dbt', 'dbt.*']),
+    packages=find_namespace_packages(include=['dbt', 'dbt.*', 'inspire_dbt_spark',  'inspire_dbt_spark.*', ]),
+    # package_dir={'': 'inspire'},
     include_package_data=True,
     install_requires=[
         f'dbt-core=={dbt_version}',
