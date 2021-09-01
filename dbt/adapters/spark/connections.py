@@ -390,19 +390,6 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
 
         logger.debug("SparkSQL Execution complete")
 
-    @classmethod
-    def _fix_binding(cls, value):
-        """Convert complex datatypes to primitives that can be loaded by
-           the Spark driver"""
-        if isinstance(value, NUMBERS):
-            return float(value)
-        elif isinstance(value, str) and (value.lower() in BOOLEAN_TRUE or value.lower() in BOOLEAN_FALSE):
-            return value.lower() in BOOLEAN_TRUE
-        elif isinstance(value, datetime):
-            return value.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-        else:
-            return value
-
     @property
     def description(self):
         """

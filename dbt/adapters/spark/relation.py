@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Type, Any
 
 from dataclasses import dataclass
 
