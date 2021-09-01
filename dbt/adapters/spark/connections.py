@@ -7,15 +7,22 @@ from dbt.contracts.connection import ConnectionState
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.utils import DECIMALS
 from dbt.adapters.spark import __version__
+from dbt.adapters.spark.external_source_registry import ExternalSourceRegistry
+
+from inspire_dbt_spark import register_external_source, register_external_relation, initialize_dbt_spark
 
 try:
     from TCLIService.ttypes import TOperationState as ThriftState
     from thrift.transport import THttpClient
     from pyhive import hive
+    from pyhive.hive import HiveParamEscaper
+    from pyspark.sql import SparkSession
 except ImportError:
     ThriftState = None
     THttpClient = None
     hive = None
+    HiveParamEscaper = None
+    SparkSession = None
 try:
     import pyodbc
 except ImportError:
@@ -24,8 +31,8 @@ from datetime import datetime
 import sqlparams
 
 from hologram.helpers import StrEnum
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
 try:
     from thrift.transport.TSSLSocket import TSSLSocket
     import thrift
@@ -53,13 +60,14 @@ class SparkConnectionMethod(StrEnum):
     THRIFT = 'thrift'
     HTTP = 'http'
     ODBC = 'odbc'
+    PYSPARK = 'pyspark'
 
 
 @dataclass
 class SparkCredentials(Credentials):
-    host: str
     method: SparkConnectionMethod
     database: Optional[str]
+    host: str = None
     driver: Optional[str] = None
     cluster: Optional[str] = None
     endpoint: Optional[str] = None
@@ -72,6 +80,7 @@ class SparkCredentials(Credentials):
     connect_retries: int = 0
     connect_timeout: int = 10
     use_ssl: bool = False
+    spark_master: str = None
 
     @classmethod
     def __pre_deserialize__(cls, data):
@@ -130,7 +139,7 @@ class SparkCredentials(Credentials):
         return 'spark'
 
     def _connection_keys(self):
-        return ('host', 'port', 'cluster',
+        return ('host', 'port', 'cluster', 'spark_master',
                 'endpoint', 'schema', 'organization')
 
 
@@ -259,6 +268,155 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
             query = sqlparams.SQLParams('format', 'qmark')
             sql, bindings = query.format(sql, bindings)
             self._cursor.execute(sql, *bindings)
+
+
+class PySparkConnectionWrapper(PyhiveConnectionWrapper):
+    _escaper = HiveParamEscaper()
+    connection_registry = dict()
+
+    def __init__(self, creds):
+        spark = None
+        spark_master = creds.spark_master
+
+        if spark_master in PySparkConnectionWrapper.connection_registry:
+            spark = PySparkConnectionWrapper.connection_registry[spark_master]
+
+        if spark is None:
+            spark = SparkSession \
+                .builder \
+                .master(spark_master) \
+                .appName("dbt-spark session") \
+                .config('spark.sql.execution.arrow.pyspark.enabled', 'true') \
+                .config('spark.sql.storeAssignmentPolicy', 'legacy') \
+                .config('spark.sql.debug.maxToStringFields', 8192) \
+                .config('spark.driver.host', 'dbt') \
+                .config('spark.driver.port', '9191') \
+                .config('spark.driver.bindAddress', '0.0.0.0') \
+                .enableHiveSupport() \
+                .getOrCreate()
+            PySparkConnectionWrapper.connection_registry[spark_master] = spark
+
+        super().__init__(spark)
+        self._session = None
+
+    def cursor(self):
+        """
+        Create a session using the PySpark session
+        :return:
+        """
+        self._session = self.handle
+        return self
+
+    def cancel(self):
+        if self._session:
+            # attempt to cancel the livy session
+            try:
+                self._session.stop()
+            except EnvironmentError as exc:
+                logger.debug(
+                    "Exception while cancelling query: {}".format(exc)
+                )
+
+    def close(self):
+        if self._session:
+            # cancel the session
+            try:
+                pass
+                # self._session.stop()
+            except EnvironmentError as exc:
+                logger.debug(
+                    "Exception while closing cursor: {}".format(exc)
+                )
+
+    def rollback(self, *args, **kwargs):
+        logger.debug("NotImplemented: rollback")
+
+    def fetchall(self):
+        """
+        fetch results and return
+        :return:
+        """
+        return self.results_df.to_numpy()
+
+    def execute(self, sql, bindings=None):
+        """
+        execute the sql against the active session
+        :param sql:
+        :param bindings:
+        :return:
+        """
+        if sql.strip().endswith(";"):
+            sql = sql.strip()[:-1]
+
+        if bindings is not None:
+            # patch bindings to be SparkSQL compatible
+            bindings = [self._fix_binding(binding) for binding in bindings]
+            # use the pyhive escaper to properly escape the SQL
+            escaped_sql = sql % self._escaper.escape_args(bindings)
+        else:
+            # if there are no bindings there is nothing to escape
+            escaped_sql = sql
+
+        try:
+
+            logger.info('Registering External Sources . . .')
+            for source in ExternalSourceRegistry.source_registry.values():
+                logger.info(f'Registering source [{source}]')
+                register_external_source(source_name=source.name, driver=source.driver_name, options=source.options)
+            for relation in ExternalSourceRegistry.relation_registry.values():
+                logger.info(f'Registering relation [{relation}]')
+                register_external_relation(
+                    source=relation.source.name,
+                    relation=relation.relation,
+                    alias=relation.alias,
+                    type_=relation.relation_type,
+                )
+
+            logger.info('Initializing dbt-spark . . .')
+            initialize_dbt_spark(self._session)
+
+            logger.info(f'Executing Query [{escaped_sql}')
+            try:
+                logger.info(f'Query Plan [{self._session.sql("EXPLAIN EXTENDED " + escaped_sql).toPandas().plan[0]}]')
+            except Exception as ex:
+                logger.error(ex)
+            self.results_df = self._session.sql(escaped_sql).toPandas()
+
+            logger.info(f'results: [{self.results_df}]')
+
+        except Exception as ex:
+            logger.error(ex)
+            dbt.exceptions.raise_database_error(ex)
+
+        logger.debug("SparkSQL Execution complete")
+
+    @classmethod
+    def _fix_binding(cls, value):
+        """Convert complex datatypes to primitives that can be loaded by
+           the Spark driver"""
+        if isinstance(value, NUMBERS):
+            return float(value)
+        elif isinstance(value, str) and (value.lower() in BOOLEAN_TRUE or value.lower() in BOOLEAN_FALSE):
+            return value.lower() in BOOLEAN_TRUE
+        elif isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        else:
+            return value
+
+    @property
+    def description(self):
+        """
+        Convert result dataframe types to db-api description
+        :return:
+        """
+        # Note: the current pyhive implementation doesn't support nullable and omits size, precision, and scale
+        cols = [
+            # TODO: these are pandas dtypes that need to be converted back to appropriate SparkSQL Types
+            (col_name, self.results_df[col_name].dtype, None, None, None, None, True)
+            for col_name in self.results_df.columns
+        ]
+        logger.info(f'Description: {cols}')
+        return cols
 
 
 class SparkConnectionManager(SQLConnectionManager):
@@ -418,6 +576,11 @@ class SparkConnectionManager(SQLConnectionManager):
 
                     conn = pyodbc.connect(connection_str, autocommit=True)
                     handle = PyodbcConnectionWrapper(conn)
+
+                elif creds.method == SparkConnectionMethod.PYSPARK:
+                    cls.validate_creds(creds, ['spark_master', 'schema'])
+
+                    handle = PySparkConnectionWrapper(creds)
                 else:
                     raise dbt.exceptions.DbtProfileError(
                         f"invalid credential method: {creds.method}"

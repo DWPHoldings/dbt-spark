@@ -89,6 +89,8 @@
   {%- else -%}
     {% if config.get('file_format', validator=validation.any[basestring]) == 'delta' %}
       create or replace table {{ relation }}
+    {% elif config.get('external', true) %}
+      create or replace external table {{ relation }}
     {% else %}
       create table {{ relation }}
     {% endif %}
