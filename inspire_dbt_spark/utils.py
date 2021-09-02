@@ -6,6 +6,7 @@ from .external_relations import ExternalRelationRegistry
 
 
 def initialize_dbt_spark(spark):
+    UDFRegistry.load_plugins()
     UDFRegistry.initialize_udfs(spark)
     ExternalRelationRegistry.initialize_external_relations(spark)
 
