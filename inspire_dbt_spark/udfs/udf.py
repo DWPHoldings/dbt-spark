@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Any
 from importlib import metadata
 
 import logging
@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 class RegisteredUDF:
     alias: str
     udf: Callable
+    return_type: Any
 
 
 class UDFRegistry:
@@ -19,15 +20,15 @@ class UDFRegistry:
     registered_plugins: List[str] = []
 
     @classmethod
-    def udf(cls, alias: str):
+    def udf(cls, alias: str, return_type: Any = None):
         def wrapper(fn: Callable):
             logger.info(f'Found custom UDF: {alias}')
-            cls.register_udf(alias, fn)
+            cls.register_udf(alias, fn, return_type)
         return wrapper
 
     @classmethod
-    def register_udf(cls, alias: str, udf: Callable):
-        cls.registry[alias] = RegisteredUDF(alias=alias, udf=udf)
+    def register_udf(cls, alias: str, udf: Callable, return_type: Any = None):
+        cls.registry[alias] = RegisteredUDF(alias=alias, udf=udf, return_type=return_type)
 
     @classmethod
     def load_plugins(cls):
@@ -43,4 +44,4 @@ class UDFRegistry:
     def initialize_udfs(cls, spark):
         for udf in cls.registry.values():
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
-            spark.udf.register(udf.alias, udf.udf)
+            spark.udf.register(udf.alias, udf.udf, udf.return_type)
