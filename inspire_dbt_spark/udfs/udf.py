@@ -30,16 +30,17 @@ class UDFRegistry:
         cls.registry[alias] = RegisteredUDF(alias=alias, udf=udf)
 
     @classmethod
+    def load_plugins(cls):
+        plugins = metadata.entry_points()['spark_udf']
+        logger.info('Registering Plugins . . .')
+        for plugin in plugins:
+            if plugin.value not in UDFRegistry.registered_plugins:
+                logger.info(f'Found plugin: {plugin.name}: {plugin.value}')
+                UDFRegistry.registered_plugins.append(plugin.value)
+                plugin.load()
+
+    @classmethod
     def initialize_udfs(cls, spark):
         for udf in cls.registry.values():
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             spark.udf.register(udf.alias, udf.udf)
-
-
-plugins = metadata.entry_points()['spark_udf']
-logger.info('Registering Plugins . . .')
-for plugin in plugins:
-    if plugin.value not in UDFRegistry.registered_plugins:
-        logger.info(f'Found plugin: {plugin.name}: {plugin.value}')
-        UDFRegistry.registered_plugins.append(plugin.value)
-        plugin.load()
