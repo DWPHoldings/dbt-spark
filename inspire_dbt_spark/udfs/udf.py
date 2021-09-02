@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Dict
+from importlib import metadata
 
 import logging
 
@@ -29,6 +30,8 @@ class UDFRegistry:
 
     @classmethod
     def initialize_udfs(cls, spark):
+        plugins = metadata.entry_points()['spark_udf']
+        logger.info(f'Found UDFs in the following modules: {plugins}')
         for udf in cls.registry.values():
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             spark.udf.register(udf.alias, udf.udf)
