@@ -6,6 +6,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+plugins = metadata.entry_points()['spark_udf']
+logger.info('Registering Plugins . . .')
+for plugin in plugins:
+    logger.info(f'Found plugin: {plugin.name}: {plugin.value}')
+    plugin.load()
+
 
 @dataclass
 class RegisteredUDF:
@@ -30,8 +36,6 @@ class UDFRegistry:
 
     @classmethod
     def initialize_udfs(cls, spark):
-        plugins = metadata.entry_points()['spark_udf']
-        logger.info(f'Found UDFs in the following modules: {plugins}')
         for udf in cls.registry.values():
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             spark.udf.register(udf.alias, udf.udf)
