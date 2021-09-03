@@ -4,18 +4,23 @@ from typing import Dict, List
 
 @dataclass()
 class RegisteredSource(object):
-    name: str
-    driver_name: str
-    jars: List[str]
-    options: Dict[str, str]
+    """
+    A source is a single named connection to external database.
+    """
+    name: str  # name to reference the source
+    driver_name: str  # JDBC driver to use to connect to the source
+    options: Dict[str, str]  # Driver specific connection properties
 
 
 @dataclass()
 class RegisteredExternalRelation(object):
+    """
+    An external relation is a table, view, or query associated with a source.
+    """
     source: RegisteredSource
-    alias: str
-    relation: str
-    relation_type: str
+    alias: str  # name of the relation created in dbt-spark
+    relation: str  # table or query in the source database
+    relation_type: str  # type of relation `dbtable` or `query`
 
 
 class ExternalSourceRegistry(object):
@@ -23,12 +28,11 @@ class ExternalSourceRegistry(object):
     relation_registry: Dict[str, RegisteredExternalRelation] = dict()
 
     @classmethod
-    def register_source(cls, name: str, driver_name: str, jars: List[str], options: Dict[str, str]):
+    def register_source(cls, name: str, driver_name: str, options: Dict[str, str]):
         if name not in cls.source_registry:
             cls.source_registry[name] = RegisteredSource(
                 name=name,
                 driver_name=driver_name,
-                jars=jars,
                 options=options
             )
 
@@ -40,9 +44,3 @@ class ExternalSourceRegistry(object):
             alias=alias,
             relation=relation,
             relation_type=relation_type)
-
-    @classmethod
-    def get_jars(cls):
-        return list(set([
-            jar for source in cls.source_registry.values() for jar in source.jars
-        ]))

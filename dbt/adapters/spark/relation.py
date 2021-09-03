@@ -41,7 +41,6 @@ class SparkRelation(BaseRelation):
             ExternalSourceRegistry.register_source(
                 name=source.source_name,
                 driver_name=source.source_meta.get('driver_name'),
-                jars=source.source_meta.get('jars', []),
                 options=source.source_meta.get('options', dict()),
             )
             ExternalSourceRegistry.register_external_relation(

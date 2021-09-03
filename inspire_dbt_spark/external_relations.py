@@ -28,8 +28,6 @@ env = Environment(
 
 CREATE_TEMPORARY_VIEW = env.get_template('create_temporary_view.sql')
 
-SNOWFLAKE_DRIVER_NAME = 'net.snowflake.spark.snowflake'
-
 
 @dataclass
 class RegisteredSource:
