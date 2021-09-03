@@ -286,12 +286,6 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
                 .builder \
                 .master(spark_master) \
                 .appName("dbt-spark session") \
-                .config('spark.sql.execution.arrow.pyspark.enabled', 'true') \
-                .config('spark.sql.storeAssignmentPolicy', 'legacy') \
-                .config('spark.sql.debug.maxToStringFields', 8192) \
-                .config('spark.driver.host', 'dbt') \
-                .config('spark.driver.port', '9191') \
-                .config('spark.driver.bindAddress', '0.0.0.0') \
                 .enableHiveSupport() \
                 .getOrCreate()
             PySparkConnectionWrapper.connection_registry[spark_master] = spark
