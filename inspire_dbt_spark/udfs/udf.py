@@ -27,6 +27,7 @@ class UDFRegistry:
         def wrapper(fn: Callable):
             logger.info(f'Found custom UDF: {alias}')
             cls.register_udf(alias, fn, return_type)
+            return fn
         return wrapper
 
     @classmethod
