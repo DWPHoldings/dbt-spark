@@ -353,12 +353,12 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
 
         try:
 
-            logger.info('Registering External Sources . . .')
+            logger.debug('Registering External Sources . . .')
             for source in ExternalSourceRegistry.source_registry.values():
-                logger.info(f'Registering source [{source}]')
+                logger.debug(f'Registering source [{source}]')
                 register_external_source(source_name=source.name, driver=source.driver_name, options=source.options)
             for relation in ExternalSourceRegistry.relation_registry.values():
-                logger.info(f'Registering relation [{relation}]')
+                logger.debug(f'Registering relation [{relation}]')
                 register_external_relation(
                     source=relation.source.name,
                     relation=relation.relation,
@@ -366,17 +366,17 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
                     type_=relation.relation_type,
                 )
 
-            logger.info('Initializing dbt-spark . . .')
+            logger.debug('Initializing dbt-spark . . .')
             initialize_dbt_spark(self._session)
 
-            logger.info(f'Executing Query [{escaped_sql}')
+            logger.debug(f'Executing Query [{escaped_sql}')
             try:
-                logger.info(f'Query Plan [{self._session.sql("EXPLAIN EXTENDED " + escaped_sql).toPandas().plan[0]}]')
+                logger.debug(f'Query Plan [{self._session.sql("EXPLAIN EXTENDED " + escaped_sql).toPandas().plan[0]}]')
             except Exception as ex:
                 logger.error(ex)
             self.results_df = self._session.sql(escaped_sql).toPandas()
 
-            logger.info(f'results: [{self.results_df}]')
+            logger.debug(f'results: [{self.results_df}]')
 
         except Exception as ex:
             logger.error(ex)
@@ -396,7 +396,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
             (col_name, self.results_df[col_name].dtype, None, None, None, None, True)
             for col_name in self.results_df.columns
         ]
-        logger.info(f'Description: {cols}')
+        logger.debug(f'Description: {cols}')
         return cols
 
 
