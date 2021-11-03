@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass
 from typing import Dict
 
@@ -62,15 +61,10 @@ class ExternalRelationRegistry:
     @classmethod
     def register_source(cls, source_name: str, driver: str, options: Dict[str, str]):
         if source_name not in cls.registered_sources:
-            s_options = {k: v.format(**os.environ) for k, v in options.items()}
-            logger.info(f'registering source {source_name}')
-            logger.info(f'options {options}')
-            logger.info(f's_options {s_options}')
-
             cls.registered_sources[source_name] = RegisteredSource(
                 source=source_name,
                 driver=driver,
-                options=s_options
+                options=options
             )
 
     @classmethod
