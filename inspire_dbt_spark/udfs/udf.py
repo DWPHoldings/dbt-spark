@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Any
+from typing import Callable, Dict, List, Any, Set
+
 try:
     from importlib import metadata
 except ImportError:  # for Python<3.8
@@ -21,6 +22,7 @@ class UDFRegistry:
 
     registry: Dict[str, RegisteredUDF] = dict()
     registered_plugins: List[str] = []
+    _existing_functions: Set[str] = set()
 
     @classmethod
     def udf(cls, alias: str, return_type: Any = None):
@@ -46,6 +48,8 @@ class UDFRegistry:
 
     @classmethod
     def initialize_udfs(cls, spark):
-        for udf in cls.registry.values():
+        if len(cls._existing_functions) == 0:
+            cls._existing_functions = set([t.name for t in spark.catalog.listFunctions('default')])
+        for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.values()):
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             spark.udf.register(udf.alias, udf.udf, udf.return_type)
