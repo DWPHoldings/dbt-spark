@@ -53,3 +53,4 @@ class UDFRegistry:
         for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.values()):
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             spark.udf.register(udf.alias, udf.udf, udf.return_type)
+            cls._existing_functions.add(udf.alias)
