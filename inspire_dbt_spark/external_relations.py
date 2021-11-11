@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Set
 
 from jinja2 import Environment, DictLoader, select_autoescape
 
@@ -57,6 +57,7 @@ class ExternalRelationRegistry:
 
     registered_sources: Dict[str, RegisteredSource] = dict()
     registered_relations: Dict[str, RegisteredRelation] = dict()
+    _existing_tables: Set[str] = set()
 
     @classmethod
     def register_source(cls, source_name: str, driver: str, options: Dict[str, str]):
@@ -80,7 +81,7 @@ class ExternalRelationRegistry:
 
     @classmethod
     def initialize_external_relations(cls, spark):
-        if not cls._existing_tables or len(cls._existing_tables) == 0:
+        if len(cls._existing_tables) == 0:
             cls._existing_tables = set([t.name for t in spark.catalog.listTables('default')])
         # filter views that have already been created
         for rel in filter(lambda r: r.alias not in cls._existing_tables, cls.registered_relations.values()):
