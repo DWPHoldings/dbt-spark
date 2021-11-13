@@ -14,15 +14,18 @@ from inspire_dbt_spark import register_external_source, register_external_relati
 try:
     from TCLIService.ttypes import TOperationState as ThriftState
     from thrift.transport import THttpClient
+except ImportError:
+    ThriftState = None
+    THttpClient = None
+
     from pyhive import hive
     from pyhive.hive import HiveParamEscaper
     from pyspark.sql import SparkSession
 except ImportError:
-    ThriftState = None
-    THttpClient = None
     hive = None
     HiveParamEscaper = None
     SparkSession = None
+
 try:
     import pyodbc
 except ImportError:
