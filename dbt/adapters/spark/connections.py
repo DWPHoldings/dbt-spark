@@ -18,6 +18,7 @@ except ImportError:
     ThriftState = None
     THttpClient = None
 
+try:
     from pyhive import hive
     from pyhive.hive import HiveParamEscaper
     from pyspark.sql import SparkSession
