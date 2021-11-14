@@ -374,10 +374,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
             initialize_dbt_spark(self._session)
 
             logger.debug(f'Executing Query [{escaped_sql}')
-            try:
-                logger.debug(f'Query Plan [{self._session.sql("EXPLAIN EXTENDED " + escaped_sql).toPandas().plan[0]}]')
-            except Exception as ex:
-                logger.error(ex)
+
             self.results_df = self._session.sql(escaped_sql).toPandas()
 
             logger.debug(f'results: [{self.results_df}]')
