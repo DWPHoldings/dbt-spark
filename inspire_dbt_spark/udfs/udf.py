@@ -18,7 +18,7 @@ class RegisteredUDF:
     alias: str
     udf: Callable
     return_type: Any
-    pandas_udf: bool
+    pandas_udf_type: pdf.PandasUDFType
 
 
 class UDFRegistry:
@@ -28,16 +28,20 @@ class UDFRegistry:
     _existing_functions: Set[str] = set()
 
     @classmethod
-    def udf(cls, alias: str, return_type: Any = None, pandas_udf: bool = False):
+    def udf(cls, alias: str, return_type: Any = None, pandas_udf_type: pdf.PandasUDFType = None):
         def wrapper(fn: Callable):
             logger.info(f'Found custom UDF: {alias}')
-            cls.register_udf(alias, fn, return_type, pandas_udf)
+            cls.register_udf(alias, fn, return_type, pandas_udf_type)
             return fn
         return wrapper
 
     @classmethod
-    def register_udf(cls, alias: str, udf: Callable, return_type: Any = None, pandas_udf: bool = False):
-        cls.registry[alias] = RegisteredUDF(alias=alias, udf=udf, return_type=return_type, pandas_udf=pandas_udf)
+    def register_udf(
+            cls, alias: str, udf: Callable, return_type: Any = None, pandas_udf_type: pdf.PandasUDFType = None
+    ):
+        cls.registry[alias] = RegisteredUDF(
+            alias=alias, udf=udf, return_type=return_type, pandas_udf_type=pandas_udf_type
+        )
 
     @classmethod
     def load_plugins(cls):
@@ -54,9 +58,9 @@ class UDFRegistry:
         if len(cls._existing_functions) == 0:
             cls._existing_functions = set([t.name for t in spark.catalog.listFunctions('default')])
         for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.values()):
-            print(f'Registering UDF: {udf.alias} [{udf.udf}. {udf.pandas_udf}, {udf.return_type}]')
+            print(f'Registering UDF: {udf.alias} [{udf.udf}. {udf.pandas_udf_type}, {udf.return_type}]')
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
-            if udf.pandas_udf:
+            if udf.pandas_udf_type is not None:
                 logger.debug(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
                 print(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
                 spark.udf.register(udf.alias, pdf.pandas_udf(udf.udf, udf.return_type), udf.return_type)
