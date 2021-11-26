@@ -56,7 +56,8 @@ class UDFRegistry:
         for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.values()):
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             if udf.pandas_udf:
-                logger.info(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
+                logger.debug(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
+                print(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
                 pdf.pandas_udf(udf.udf, udf.return_type)
             spark.udf.register(udf.alias, udf.udf, udf.return_type)
             cls._existing_functions.add(udf.alias)
