@@ -59,6 +59,7 @@ class UDFRegistry:
             if udf.pandas_udf:
                 logger.debug(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
                 print(f'Registering Pandas UDF: {udf.alias} [{udf.udf}]')
-                pdf.pandas_udf(udf.udf, udf.return_type)
-            spark.udf.register(udf.alias, udf.udf, udf.return_type)
+                spark.udf.register(udf.alias, pdf.pandas_udf(udf.udf, udf.return_type), udf.return_type)
+            else:
+                spark.udf.register(udf.alias, udf.udf, udf.return_type)
             cls._existing_functions.add(udf.alias)
