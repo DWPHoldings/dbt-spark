@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import contextmanager
 
 import dbt.exceptions
@@ -375,7 +376,20 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
 
             logger.debug(f'Executing Query [{escaped_sql}')
 
-            self.results_df = self._session.sql(escaped_sql).toPandas()
+            async def execute_query():
+                return self._session.sql(escaped_sql).toPandas()
+
+            async def wait_loop():
+                # print a message to log to ensure that airflow knows the job is still running
+                while True:
+                    await asyncio.sleep(10)
+                    print('SparkSQL Query is running waiting for results . . . ')
+
+            query_task = asyncio.create_task(execute_query())
+            wait_loop_task = asyncio.create_task(wait_loop())
+            await query_task
+            self.result_df = query_task.result()
+            wait_loop_task.cancel()
 
             logger.debug(f'results: [{self.results_df}]')
 
