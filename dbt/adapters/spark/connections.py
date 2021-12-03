@@ -275,6 +275,31 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
             self._cursor.execute(sql, *bindings)
 
 
+# coroutines for running queries asynchronously and logging when they take a long time
+async def _query_session(session, query):
+    return session.sql(query).toPandas()
+
+
+async def _wait_loop():
+    # print a message to log to ensure that airflow knows the job is still running
+    while True:
+        await asyncio.sleep(10)
+        print('SparkSQL Query is running waiting for results . . . ')
+
+
+async def _execute_query_main(session, query):
+    query_task = asyncio.create_task(_query_session(session, query))
+    wait_loop_task = asyncio.create_task(_wait_loop())
+    await query_task
+    result_df = query_task.result()
+    wait_loop_task.cancel()
+    return result_df
+
+
+def execute_query_async(session, query):
+    return asyncio.run(_execute_query_main(session, query))
+
+
 class PySparkConnectionWrapper(PyhiveConnectionWrapper):
     _escaper = HiveParamEscaper()
     connection_registry = dict()
@@ -375,21 +400,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
             initialize_dbt_spark(self._session)
 
             logger.debug(f'Executing Query [{escaped_sql}')
-
-            async def execute_query():
-                return self._session.sql(escaped_sql).toPandas()
-
-            async def wait_loop():
-                # print a message to log to ensure that airflow knows the job is still running
-                while True:
-                    await asyncio.sleep(10)
-                    print('SparkSQL Query is running waiting for results . . . ')
-
-            query_task = asyncio.create_task(execute_query())
-            wait_loop_task = asyncio.create_task(wait_loop())
-            await query_task
-            self.result_df = query_task.result()
-            wait_loop_task.cancel()
+            self.results_df = execute_query_async(self._session, escaped_sql)
 
             logger.debug(f'results: [{self.results_df}]')
 
