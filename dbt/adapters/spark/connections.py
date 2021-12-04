@@ -284,7 +284,7 @@ def _wait_loop():
     # print a message to log to ensure that airflow knows the job is still running
     while True:
         print('SparkSQL Query is running waiting for results . . . ')
-        await asyncio.sleep(25)
+        time.sleep(25)
 
 
 async def _execute_query_main(session, query):
