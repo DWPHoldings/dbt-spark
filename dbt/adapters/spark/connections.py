@@ -280,7 +280,7 @@ async def _query_session(session, query):
     return session.sql(query).toPandas()
 
 
-async def _wait_loop():
+def _wait_loop():
     # print a message to log to ensure that airflow knows the job is still running
     while True:
         print('SparkSQL Query is running waiting for results . . . ')
@@ -288,10 +288,9 @@ async def _wait_loop():
 
 
 async def _execute_query_main(session, query):
-    query_task = asyncio.create_task(_query_session(session, query))
-    wait_loop_task = asyncio.create_task(asyncio.to_thread(_wait_loop()))
-    await query_task
-    result_df = query_task.result()
+    wait_loop_task = asyncio.get_running_loop().run_in_executor(None, _wait_loop)
+    result_df = await asyncio.create_task(_query_session(session, query))
+
     wait_loop_task.cancel()
     return result_df
 
