@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from contextlib import contextmanager
 
 import dbt.exceptions
@@ -280,18 +281,21 @@ async def _query_session(session, query):
     return session.sql(query).toPandas()
 
 
-def _wait_loop():
+def _wait_loop(event: threading.Event):
+    time.sleep(120)
     # print a message to log to ensure that airflow knows the job is still running
-    while True:
-        time.sleep(120)
+    while not event.is_set():
         print('SparkSQL Query is running waiting for results . . . ')
+        time.sleep(60)
 
 
 async def _execute_query_main(session, query):
-    wait_loop_task = asyncio.get_running_loop().run_in_executor(None, _wait_loop)
+    event = threading.Event()
+
+    asyncio.get_running_loop().run_in_executor(None, _wait_loop, event)
     result_df = await asyncio.create_task(_query_session(session, query))
 
-    wait_loop_task.cancel()
+    event.set()
     return result_df
 
 
