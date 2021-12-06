@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import re
 from contextlib import contextmanager
 
 import dbt.exceptions
@@ -24,10 +25,12 @@ try:
     from pyhive import hive
     from pyhive.hive import HiveParamEscaper
     from pyspark.sql import SparkSession
+    from pyspark.context import SparkContext
 except ImportError:
     hive = None
     HiveParamEscaper = None
     SparkSession = None
+    SparkContext = None
 
 try:
     import pyodbc
@@ -37,8 +40,8 @@ from datetime import datetime
 import sqlparams
 
 from hologram.helpers import StrEnum
-from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from typing import Optional
 try:
     from thrift.transport.TSSLSocket import TSSLSocket
     import thrift
@@ -278,6 +281,13 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
 
 # coroutines for running queries asynchronously and logging when they take a long time
 async def _query_session(session, query):
+    sc = SparkContext.getOrCreate()
+    try:
+        model_description = re.search("(?<=spark_model_name:)\s*(\w+)", query)[0].strip()
+        sc.setLocalProperty("callSite.short", model_description)
+        sc.setLocalProperty("callSite.long", model_description)
+    except Exception as ex:
+        logger.warn(ex)
     return session.sql(query).toPandas()
 
 
