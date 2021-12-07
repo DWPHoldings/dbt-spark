@@ -282,11 +282,12 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
 # coroutines for running queries asynchronously and logging when they take a long time
 async def _query_session(session, query):
     try:
-        sc = SparkContext.getOrCreate()
+        sc = session.sparkContext
         model_description = re.search("(?<=spark_model_name:)\s*(\w+)", query)[0].strip()
         sc.setLocalProperty("callSite.short", model_description)
         sc.setLocalProperty("callSite.long", model_description)
         sc.setJobDescription(model_description)
+        print(f'Running model: {model_description}')
     except Exception as ex:
         logger.warn(ex)
     return session.sql(query).toPandas()
