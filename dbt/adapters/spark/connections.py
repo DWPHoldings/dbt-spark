@@ -283,11 +283,13 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
 async def _query_session(session, query):
     try:
         sc = session.sparkContext
-        model_description = re.search("(?<=spark_model_name:)\s*(\w+)", query)[0].strip()
-        sc.setLocalProperty("callSite.short", model_description)
-        sc.setLocalProperty("callSite.long", model_description)
-        sc.setJobDescription(model_description)
-        print(f'Running model: {model_description}')
+        model_description = re.search("(?<=spark_model_name:)\s*(\w+)", query)
+        if model_description is not None:
+            model_description = model_description[0].strip()
+            sc.setLocalProperty("callSite.short", model_description)
+            sc.setLocalProperty("callSite.long", model_description)
+            sc.setJobDescription(model_description)
+            print(f'Running model: {model_description}')
     except Exception as ex:
         logger.warn(ex)
     return session.sql(query).toPandas()
@@ -304,10 +306,11 @@ def _wait_loop(event: threading.Event):
 async def _execute_query_main(session, query):
     event = threading.Event()
 
-    asyncio.get_running_loop().run_in_executor(None, _wait_loop, event)
+    wait_loop = asyncio.get_running_loop().run_in_executor(None, _wait_loop, event)
     result_df = await asyncio.create_task(_query_session(session, query))
 
     event.set()
+    wait_loop.cancel()
     return result_df
 
 
