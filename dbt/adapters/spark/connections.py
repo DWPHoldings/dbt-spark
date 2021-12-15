@@ -307,7 +307,7 @@ async def _execute_query_main(session, query):
     event = threading.Event()
     wait_loop = asyncio.create_task(_wait_loop(event))
 
-    result_df = await asyncio.get_running_loop().run_in_executor(None, _query_session, session, query)
+    result_df = _query_session(session, query)
 
     event.set()
     wait_loop.cancel()
