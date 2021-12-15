@@ -315,6 +315,7 @@ async def _execute_query_main(session, query):
             event.set()
             wait_loop.cancel()
             await asyncio.sleep(0)
+        print('Query execution complete.')
     except Exception as ex:
         logger.error(f"Error canceling wait_loop {ex}")
     return result_df
@@ -326,23 +327,16 @@ def execute_query_async(session, query):
 
 class PySparkConnectionWrapper(PyhiveConnectionWrapper):
     _escaper = HiveParamEscaper()
-    connection_registry = dict()
 
     def __init__(self, creds):
-        spark = None
         spark_master = creds.spark_master
 
-        if spark_master in PySparkConnectionWrapper.connection_registry:
-            spark = PySparkConnectionWrapper.connection_registry[spark_master]
-
-        if spark is None:
-            spark = SparkSession \
-                .builder \
-                .master(spark_master) \
-                .appName("dbt-spark session") \
-                .enableHiveSupport() \
-                .getOrCreate()
-            PySparkConnectionWrapper.connection_registry[spark_master] = spark
+        spark = SparkSession \
+            .builder \
+            .master(spark_master) \
+            .appName("dbt-spark session") \
+            .enableHiveSupport() \
+            .getOrCreate()
 
         super().__init__(spark)
         self._session = None
@@ -369,8 +363,8 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
         if self._session:
             # cancel the session
             try:
-                pass
-                # self._session.stop()
+                # pass
+                self._session.stop()
             except EnvironmentError as exc:
                 logger.debug(
                     "Exception while closing cursor: {}".format(exc)
