@@ -280,7 +280,7 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
 
 
 # coroutines for running queries asynchronously and logging when they take a long time
-async def _query_session(session, query):
+def _query_session(session, query):
     try:
         sc = session.sparkContext
         model_description = re.search("(?<=spark_model_name:)\s*(\w+)", query)
@@ -295,7 +295,7 @@ async def _query_session(session, query):
     return session.sql(query).toPandas()
 
 
-def _wait_loop(event: threading.Event):
+async def _wait_loop(event: threading.Event):
     time.sleep(120)
     # print a message to log to ensure that airflow knows the job is still running
     while not event.is_set():
@@ -305,9 +305,9 @@ def _wait_loop(event: threading.Event):
 
 async def _execute_query_main(session, query):
     event = threading.Event()
+    wait_loop = asyncio.create_task(_wait_loop(event))
 
-    wait_loop = asyncio.get_running_loop().run_in_executor(None, _wait_loop, event)
-    result_df = await asyncio.create_task(_query_session(session, query))
+    result_df = await asyncio.get_running_loop().run_in_executor(None, _query_session, session, query)
 
     event.set()
     wait_loop.cancel()
