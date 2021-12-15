@@ -311,6 +311,9 @@ async def _execute_query_main(session, query):
 
     event.set()
     wait_loop.cancel()
+    await asyncio.wait({
+        wait_loop
+    })
     return result_df
 
 
