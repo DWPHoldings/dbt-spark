@@ -301,6 +301,7 @@ async def _wait_loop(event: threading.Event):
     while not event.is_set():
         print('SparkSQL Query is running waiting for results . . . ')
         await asyncio.sleep(60)
+    print('wait loop completed.')
 
 
 async def _execute_query_main(session, query):
@@ -309,11 +310,13 @@ async def _execute_query_main(session, query):
 
     result_df = _query_session(session, query)
 
-    event.set()
-    wait_loop.cancel()
-    await asyncio.wait({
-        wait_loop
-    })
+    try:
+        while not wait_loop.done():
+            event.set()
+            wait_loop.cancel()
+            await asyncio.sleep(0)
+    except Exception as ex:
+        logger.error(f"Error canceling wait_loop {ex}")
     return result_df
 
 
