@@ -1,6 +1,7 @@
 import asyncio
 import threading
 import re
+import traceback
 from contextlib import contextmanager
 
 import dbt.exceptions
@@ -291,6 +292,7 @@ def _query_session(session, query):
             sc.setJobDescription(model_description)
             print(f'Running model: {model_description}')
     except Exception as ex:
+        traceback.print_exc()
         logger.warn(ex)
     return session.sql(query).toPandas()
 
@@ -315,6 +317,7 @@ async def _execute_query_main(session, query):
         n = 0
         while not wait_loop.done():
             print(f'wait loop has not returned ({n})')
+            n = n + 1
             event.set()
             wait_loop.cancel()
             await asyncio.sleep(0)
@@ -366,8 +369,8 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
         if self._session:
             # cancel the session
             try:
-                # pass
-                self._session.stop()
+                pass
+                # self._session.stop()
             except EnvironmentError as exc:
                 logger.debug(
                     "Exception while closing cursor: {}".format(exc)
