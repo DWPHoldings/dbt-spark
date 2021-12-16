@@ -311,7 +311,10 @@ async def _execute_query_main(session, query):
     result_df = _query_session(session, query)
 
     try:
+        print('killing watchdog')
+        n = 0
         while not wait_loop.done():
+            print(f'wait loop has not returned ({n})')
             event.set()
             wait_loop.cancel()
             await asyncio.sleep(0)
