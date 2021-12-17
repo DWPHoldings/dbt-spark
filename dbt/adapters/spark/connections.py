@@ -298,11 +298,14 @@ def _query_session(session, query):
 
 
 async def _wait_loop(event: threading.Event):
-    await asyncio.sleep(120)
+    logger.info('Starting watchdog thread.')
+    await asyncio.sleep(60)
     # print a message to log to ensure that airflow knows the job is still running
+    n = 0
     while not event.is_set():
-        print('SparkSQL Query is running waiting for results . . . ')
-        await asyncio.sleep(60)
+        print(f'SparkSQL Query is running waiting for results ({60 + (30 * n)}) . . . ')
+        await asyncio.sleep(30)
+        n = n + 1
     print('wait loop completed.')
 
 
