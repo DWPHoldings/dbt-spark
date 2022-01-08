@@ -7,7 +7,7 @@ import logging
 
 templates = {
     'create_temporary_view.sql': """
-CREATE TEMPORARY VIEW {{ alias }}
+CREATE TEMPORARY VIEW {{ alias }} IF NOT EXISTS
 USING {{ source_driver }}
 OPTIONS (
   {{ relation_type }} '{{ relation }}',
