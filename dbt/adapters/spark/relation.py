@@ -1,9 +1,13 @@
-from typing import Optional
+from typing import Optional, Type, Any
 
 from dataclasses import dataclass
 
 from dbt.adapters.base.relation import BaseRelation, Policy
+from dbt.contracts.graph.parsed import ParsedSourceDefinition
 from dbt.exceptions import RuntimeException
+
+from dbt.adapters.spark.column import Self
+from dbt.adapters.spark.external_source_registry import ExternalSourceRegistry
 
 
 @dataclass
@@ -29,6 +33,25 @@ class SparkRelation(BaseRelation):
     is_hudi: Optional[bool] = None
     information: str = None
 
+    @classmethod
+    def create_from_source(
+            cls: Type[Self], source: ParsedSourceDefinition, **kwargs: Any
+    ) -> Self:
+        print(f'registering source {source.name}, {source.source_name}, {source.meta}')
+        if source.meta.get('external_table'):
+            ExternalSourceRegistry.register_source(
+                name=source.source_name,
+                driver_name=source.source_meta.get('driver_name'),
+                options=source.source_meta.get('options', dict()),
+            )
+            ExternalSourceRegistry.register_external_relation(
+                source=source.source_name,
+                alias=source.name,
+                relation=source.meta['external_table'],
+                relation_type=source.meta.get('external_table_type', 'dbtable'),
+            )
+        return super().create_from_source(source, **kwargs)
+
     def __post_init__(self):
         if self.database != self.schema and self.database:
             raise RuntimeException('Cannot set database in spark!')
@@ -39,4 +62,9 @@ class SparkRelation(BaseRelation):
                 'Got a spark relation with schema and database set to '
                 'include, but only one can be set'
             )
+        source = self.path.database or self.path.schema
+        if source in ExternalSourceRegistry.source_registry:
+            for xr in ExternalSourceRegistry.relation_registry.values():
+                if xr.source.name == source and xr.alias == self.path.identifier:
+                    return xr.alias
         return super().render()

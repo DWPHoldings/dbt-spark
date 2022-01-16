@@ -80,7 +80,8 @@ setup(
     author_email='info@dbtlabs.com',
     url='https://github.com/dbt-labs/dbt-spark',
 
-    packages=find_namespace_packages(include=['dbt', 'dbt.*']),
+    packages=find_namespace_packages(include=['dbt', 'dbt.*', 'inspire_dbt_spark',  'inspire_dbt_spark.*', ]),
+    # package_dir={'': 'inspire'},
     include_package_data=True,
     install_requires=[
         'dbt-core~={}'.format(dbt_core_version),
@@ -94,9 +95,9 @@ setup(
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        
+
         'License :: OSI Approved :: Apache Software License',
-        
+
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
