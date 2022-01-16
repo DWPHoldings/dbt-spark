@@ -18,6 +18,7 @@
   {% set existing_relation = load_relation(this) %}
   {% set tmp_relation = make_temp_relation(this) %}
 
+{#
   {% if strategy == 'insert_overwrite' and partition_by %}
     {% call statement() %}
       set spark.sql.sources.partitionOverwriteMode = DYNAMIC
@@ -29,7 +30,7 @@
       set hive.exec.dynamic.partition.mode = NONSTRICT
     {% endcall %}
   {% endif %}
-
+#}
   {{ run_hooks(pre_hooks) }}
 
   {% if existing_relation is none %}
