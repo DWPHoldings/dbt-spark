@@ -20,9 +20,9 @@
 
   {% if strategy == 'insert_overwrite' and partition_by %}
     {% call statement() %}
-      set spark.sql.sources.partitionOverwriteMode = DYNAMIC
-      set hive.exec.dynamic.partition.mode = TRUE
-      set hive.exec.dynamic.partition.mode = NONSTRICT
+      set spark.sql.sources.partitionOverwriteMode = DYNAMIC;
+      set hive.exec.dynamic.partition.mode = TRUE;
+      set hive.exec.dynamic.partition.mode = NONSTRICT;
     {% endcall %}
   {% endif %}
 
