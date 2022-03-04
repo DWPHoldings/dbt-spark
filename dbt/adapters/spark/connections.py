@@ -360,7 +360,10 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
             .enableHiveSupport() \
             .getOrCreate()
 
-        atexit.register(lambda: spark.close())
+        def __finalize_spark():
+            spark.stop()
+
+        atexit.register(__finalize_spark)
         super().__init__(spark)
         self._session = None
 
