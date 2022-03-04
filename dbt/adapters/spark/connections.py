@@ -1,4 +1,5 @@
 import asyncio
+import atexit
 import threading
 import re
 import traceback
@@ -359,6 +360,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
             .enableHiveSupport() \
             .getOrCreate()
 
+        atexit.register(lambda: spark.close())
         super().__init__(spark)
         self._session = None
 
