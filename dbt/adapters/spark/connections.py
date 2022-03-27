@@ -458,6 +458,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
         df = self._session.sql(f"select * from {temp_table}")
         df.write.options(**options) \
             .format("com.audienceproject.spark.dynamodb.datasource") \
+            .mode("append") \
             .save()
 
 
