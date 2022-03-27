@@ -1,7 +1,7 @@
 import re
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Any, Union, Iterable
+from typing import Optional, List, Dict, Any, Union, Iterable, Mapping
 import agate
 from dbt.contracts.relation import RelationType
 
@@ -363,6 +363,9 @@ class SparkAdapter(SQLAdapter):
         )
 
         return sql
+
+    def pre_model_hook(self, config: Mapping[str, Any]) -> Any:
+        logger.info(f'Pre model hook for model {config}')
 
 
 # spark does something interesting with joins when both tables have the same
