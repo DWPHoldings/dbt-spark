@@ -2,7 +2,7 @@
 
   {% set target_relation = this %}
   {% set existing_relation = load_relation(this) %}
-  {% set tmp_relation_ext = make_temp_relation(this ~ '_ext') %}
+  {% set tmp_relation_ext = make_temp_relation(this, '_ext') %}
   {% set tmp_relation = make_temp_relation(this) %}
   {%- set options = config.get('options') -%}
   {%- set driver = config.get('driver') -%}
