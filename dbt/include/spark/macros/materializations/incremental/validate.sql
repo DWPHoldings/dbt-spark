@@ -1,7 +1,7 @@
 {% macro dbt_spark_validate_get_file_format(raw_file_format) %}
   {#-- Validate the file format #}
 
-  {% set accepted_formats = ['text', 'csv', 'json', 'jdbc', 'parquet', 'orc', 'hive', 'delta', 'libsvm', 'hudi', 'dynamodb'] %}
+  {% set accepted_formats = ['text', 'csv', 'json', 'jdbc', 'parquet', 'orc', 'hive', 'delta', 'libsvm', 'hudi', 'com.audienceproject.dynamodb'] %}
 
   {% set invalid_file_format_msg -%}
     Invalid file format provided: {{ raw_file_format }}
