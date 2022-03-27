@@ -366,8 +366,8 @@ class SparkAdapter(SQLAdapter):
 
     def pre_model_hook(self, config: Mapping[str, Any]) -> Any:
         logger.info(f'Pre model hook for model {config.model.name}')
-        for k in config.model.config.to_dict():
-            logger.info(f'Pre model hook for model {k} -> {k}')
+        for k in config.model.config:
+            logger.info(f'Pre model hook for model {k} -> {config.model.config[k]}')
 
 
 # spark does something interesting with joins when both tables have the same
