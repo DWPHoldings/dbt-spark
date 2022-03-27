@@ -365,7 +365,8 @@ class SparkAdapter(SQLAdapter):
         return sql
 
     def pre_model_hook(self, config: Mapping[str, Any]) -> Any:
-        for k,v in config:
+        logger.info(f'Pre model hook for model {dir(config.model)}')
+        for k, v in config.model.config:
             logger.info(f'Pre model hook for model {k} -> {v}')
 
 
