@@ -457,7 +457,7 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
     def write_to_dynamo(self, temp_table, dynamo_table_name):
         df = self._session.sql(f"select * from {temp_table}")
         df.write.option("tableName", dynamo_table_name) \
-            .format("dynamodb") \
+            .format("com.audienceproject.spark.dynamodb.datasource") \
             .save()
 
 
