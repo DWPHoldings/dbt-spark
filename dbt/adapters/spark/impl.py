@@ -373,9 +373,9 @@ class SparkAdapter(SQLAdapter):
         logger.info(f'Post model hook for model {config.model.name}')
         if config.model.config.get('materialized') == 'external_table':
             dynamo_table_name = config.model.config.get('table_name')
-            temp_table = config.model.config.get('temp_table_name')
             logger.info(f'Dynamo copying {config.model.name} -> {dynamo_table_name}')
-            self.connections.get_if_exists().handle.write_to_dynamo(config.model.name, dynamo_table_name)
+            options = config.model.config['options']
+            self.connections.get_if_exists().handle.write_to_dynamo(config.model.name, options)
 
 
 # spark does something interesting with joins when both tables have the same
