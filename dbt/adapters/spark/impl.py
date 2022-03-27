@@ -371,10 +371,10 @@ class SparkAdapter(SQLAdapter):
 
     def post_model_hook(self, config: Mapping[str, Any], context: Any) -> None:
         logger.info(f'Post model hook for model {config.model.name}')
-        logger.info(f'Post model hook for model {dir(context)}')
         if config.model.config.get('materialized') == 'external_table':
             dynamo_table_name = config.model.config.get('table_name')
             temp_table = config.model.config.get('temp_table_name')
+            logger.info(f'Dynamo copying {temp_table} -> {dynamo_table_name}')
             self.connections.get_if_exists().handle.write_to_dynamo(temp_table, dynamo_table_name)
 
 
