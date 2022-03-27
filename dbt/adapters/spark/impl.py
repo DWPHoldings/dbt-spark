@@ -369,8 +369,10 @@ class SparkAdapter(SQLAdapter):
         for k in config.model.config:
             logger.info(f'Pre model hook for model {k} -> {config.model.config[k]}')
 
-    def write_to_dynamo(self, temp_table, dynamo_table_name):
-        self.connections.write_to_dynamo(temp_table, dynamo_table_name)
+    def post_model_hook(self, config: Mapping[str, Any], context: Any) -> None:
+        logger.info(f'Post model hook for model {config.model.name}')
+        logger.info(f'Post model hook for model {dir(context)}')
+        # self.connections.write_to_dynamo(temp_table, dynamo_table_name)
 
 
 # spark does something interesting with joins when both tables have the same

@@ -15,7 +15,6 @@
   {{ run_hooks(pre_hooks) }}
 
   {% do run_query(create_table_as(True, tmp_relation, sql)) %}
-  {% do adapter.write_to_dynamo(tmp_relation, config.get('options').get('tableName')) %}
 
   {% do persist_docs(target_relation, model) %}
 
