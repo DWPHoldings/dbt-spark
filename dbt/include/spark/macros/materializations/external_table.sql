@@ -5,6 +5,7 @@
   {% set tmp_relation_ext = make_temp_relation(this ~ '_ext') %}
   {% set tmp_relation = make_temp_relation(this) %}
   {%- set options = config.get('options') -%}
+  {%- set driver = config.get('driver') -%}
 
   {% set create_external_view %}
     CREATE TEMPORARY VIEW {{ tmp_relation_ext }}
