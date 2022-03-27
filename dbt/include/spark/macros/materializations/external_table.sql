@@ -8,7 +8,7 @@
   {%- set driver = config.get('driver') -%}
 
   {% set create_external_view %}
-    CREATE TEMPORARY VIEW {{ tmp_relation_ext }}
+    CREATE TEMPORARY VIEW local.default.{{ tmp_relation_ext }}
     USING {{ driver }}
     {{ options_clause() }}
   {% endset %}
