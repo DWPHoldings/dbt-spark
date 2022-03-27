@@ -2,7 +2,6 @@
 
   {% set target_relation = this %}
   {% set existing_relation = load_relation(this) %}
-  {% set tmp_relation_ext = make_temp_relation(this, '_ext') %}
   {% set tmp_relation = make_temp_relation(this) %}
   {%- set options = config.get('options') -%}
   {%- set driver = config.get('driver') -%}
@@ -15,12 +14,8 @@
 
   {{ run_hooks(pre_hooks) }}
 
-  {% do run_query(create_external_view) %}
   {% do run_query(create_table_as(True, tmp_relation, sql)) %}
-  {%- call statement('main') -%}
-    INSERT INTO TABLE {{ tmp_relation_ext }}
-    SELECT * FROM {{ tmp_relation }}
-  {%- endcall -%}
+  {% do adapter.write_to_dynamo(tmp_relation, config.get('options').get('tableName')) %}
 
   {% do persist_docs(target_relation, model) %}
 
