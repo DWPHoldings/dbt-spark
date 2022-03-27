@@ -9,7 +9,7 @@
 
   {% set create_external_view %}
     CREATE TEMPORARY VIEW {{ tmp_relation_ext }}
-    USING '{{ driver }}'
+    USING {{ driver }}
     options (
       {%- if driver == 'com.audienceproject.spark.dynamodb.datasource' %}
         tableName "{{ target_relation }}"
