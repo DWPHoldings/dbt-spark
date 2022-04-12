@@ -30,9 +30,16 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+
+      - name: Install Twine
+        run: |
+          pip install wheel twine
+
       - name: Build Package
         run: |
           python setup.py sdist
+
       - name: Publish Package
         run: |
-          aws codeartifact login --tool pip --repository manual-dbt-spark --domain manual-dbt-spark --domain-owner 794844780483
+          aws codeartifact login --tool twine --repository manual-dbt-spark --domain manual-dbt-spark --domain-owner 794844780483 &&
+          twine upload --repository codeartifact dist/*
