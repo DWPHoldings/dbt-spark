@@ -57,7 +57,7 @@ def _get_dbt_core_version():
 
 # TODO remove old logic and add to versionBump script
 package_name = "dbt-spark"
-package_version = "1.0.0"
+package_version = "0.9.0"
 dbt_core_version = _get_dbt_core_version()
 description = """The Apache Spark adapter plugin for dbt"""
 
