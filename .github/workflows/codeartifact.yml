@@ -38,7 +38,7 @@ jobs:
 
       - name: Bump Version # run the run.py to get the latest data
         run: |
-          bumpversion --current-version 1.1.9 major setup.py
+          bumpversion --current-version 1.0.0 minor setup.py
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Bumped version to ${{ env.CURRENT_VERSION }}
