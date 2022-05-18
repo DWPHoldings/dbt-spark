@@ -35,9 +35,9 @@ jobs:
         run: |
           pip install bumpversion
 
-      # - name: Bump Version
-      #   run: |
-      #     bump2version --current-version 1.0.0 minor setup.py
+      - name: Bump Version
+        run: |
+          bump2version --current-version 1.0.0 minor setup.py --commit False
 
       - name: Install Twine
         run: |
