@@ -31,6 +31,14 @@ jobs:
         with:
           python-version: 3.9
 
+      - name: Install bump2version
+        run: |
+          pip install bumpversion
+
+      - name: Bump Version
+        run: |
+          bump2version --current-version 1.0.0 minor setup.py
+
       - name: Install Twine
         run: |
           pip install wheel twine
