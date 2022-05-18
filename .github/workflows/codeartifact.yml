@@ -32,9 +32,9 @@ jobs:
         with:
           python-version: 3.9
 
-      # - name: Install bump2version
-      #   run: |
-      #     pip install bumpversion
+      - name: Install bump2version
+        run: |
+          pip install bumpversion
 
       - name: execute version script # run the run.py to get the latest data
         run: |
