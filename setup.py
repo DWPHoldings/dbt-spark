@@ -57,7 +57,7 @@ def _get_dbt_core_version():
 
 # TODO remove old logic and add to versionBump script
 package_name = "dbt-spark"
-package_version = "1.0.0"
+current_version = "1.0.0"
 dbt_core_version = _get_dbt_core_version()
 description = """The Apache Spark adapter plugin for dbt"""
 
@@ -70,7 +70,7 @@ all_extras = odbc_extras + pyhive_extras
 
 setup(
     name=package_name,
-    version=package_version,
+    version=current_version,
 
     description=description,
     long_description=long_description,
