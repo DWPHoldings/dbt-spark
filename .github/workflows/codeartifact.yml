@@ -12,7 +12,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
+    env: 
+      PR_NUMBER: ${{ github.event.number }}
     steps:
 
       - name: Checkout Repository
@@ -35,9 +36,16 @@ jobs:
       #   run: |
       #     pip install bumpversion
 
-      # - name: Bump Version
-      #   run: |
-      #     bump2version --current-version 1.0.0 minor setup.py
+      - name: execute version script # run the run.py to get the latest data
+        run: |
+          if ["$PR_NUMBER" != ""]; then export PR_NUMBER=999999; fi
+          # When this PR is opened, bump version to "<NEXT MINOR VERSION>.a{PR_NUMBER}.post1"
+          bump2version patch
+          bump2version --allow-dirt release
+          bump2version --allow-dirty build
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Bumped version to ${{ env.CURRENT_VERSION }}
 
       - name: Install Twine
         run: |
