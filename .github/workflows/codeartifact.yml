@@ -45,9 +45,9 @@ jobs:
           bump2version patch
           bump2version --allow-dirt release
           bump2version --allow-dirty build
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Bumped version to ${{ env.CURRENT_VERSION }}
+      # - uses: stefanzweifel/git-auto-commit-action@v4
+      #   with:
+      #     commit_message: Bumped version to ${{ env.CURRENT_VERSION }}
 
       - name: Install Twine
         run: |
