@@ -17,7 +17,7 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v2
-      # Change Account to Ops Account 
+      # Change Account to Ops Account
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
