@@ -49,6 +49,10 @@ class SparkRelation(BaseRelation):
                 alias=source.name,
                 relation=source.meta['external_table'],
                 relation_type=source.meta.get('external_table_type', 'dbtable'),
+                options=source.meta.get('options', dict()),
+                location=source.meta.get('location'),
+                properties=source.meta.get('properties', dict()),
+                comment=source.meta.get('comment')
             )
         return super().create_from_source(source, **kwargs)
 

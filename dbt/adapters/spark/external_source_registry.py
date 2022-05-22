@@ -21,6 +21,10 @@ class RegisteredExternalRelation(object):
     alias: str  # name of the relation created in dbt-spark
     relation: str  # table or query in the source database
     relation_type: str  # type of relation `dbtable` or `query`
+    options: Dict[str, str]  # driver specific options for this relation
+    location: str
+    properties: Dict[str, str]  # tblproperties
+    comment: str
 
 
 class ExternalSourceRegistry(object):
@@ -37,10 +41,26 @@ class ExternalSourceRegistry(object):
             )
 
     @classmethod
-    def register_external_relation(cls, source, alias, relation, relation_type):
+    def register_external_relation(
+            cls,
+            source,
+            alias,
+            relation,
+            relation_type,
+            options: Dict[str, str],
+            location: str,
+            properties: Dict[str, str],
+            comment: str,
+
+    ):
         assert source in cls.source_registry, f'Source {source} not registered!'
         cls.relation_registry[alias] = RegisteredExternalRelation(
             source=cls.source_registry[source],
             alias=alias,
             relation=relation,
-            relation_type=relation_type)
+            relation_type=relation_type,
+            options=options,
+            location=location,
+            properties=properties,
+            comment=comment,
+        )

@@ -438,6 +438,10 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
                     relation=relation.relation,
                     alias=relation.alias,
                     type_=relation.relation_type,
+                    options=relation.options,
+                    location=relation.location,
+                    properties=relation.properties,
+                    comment=relation.comment,
                 )
 
             logger.debug('Initializing dbt-spark . . .')

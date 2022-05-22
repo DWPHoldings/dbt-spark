@@ -11,8 +11,26 @@ def initialize_dbt_spark(spark):
     ExternalRelationRegistry.initialize_external_relations(spark)
 
 
-def register_external_relation(source: str, relation: str, alias: str, type_: str = 'dbtable'):
-    ExternalRelationRegistry.register_relation(source=source, relation=relation, alias=alias, type_=type_)
+def register_external_relation(
+        source: str,
+        relation: str,
+        alias: str,
+        options: Dict[str, str],
+        location: str,
+        properties: Dict[str, str],
+        comment: str,
+        type_: str = 'dbtable',
+):
+    ExternalRelationRegistry.register_relation(
+        source=source,
+        relation=relation,
+        alias=alias,
+        type_=type_,
+        options=options,
+        location=location,
+        properties=properties,
+        comment=comment,
+    )
 
 
 def register_external_source(source_name: str, driver: str, options: Dict[str, str]):

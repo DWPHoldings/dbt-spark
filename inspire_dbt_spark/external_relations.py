@@ -5,16 +5,31 @@ from jinja2 import Environment, DictLoader, select_autoescape
 
 import logging
 
+DATABASE_DRIVERS = ['org.apache.spark.sql.jdbc', 'net.snowflake.spark.snowflake']
+
 templates = {
     'create_temporary_view.sql': """
 CREATE OR REPLACE TEMPORARY VIEW {{ alias }}
 USING {{ source_driver }}
+{%- if options is not none %}
 OPTIONS (
-  {{ relation_type }} '{{ relation }}',
   {% for opt, val in options.items() %}
   {{ opt }} '{{ val }}'{%- if not loop.last %},{%- endif %}
   {% endfor %}
 )
+{% endif -%}
+{%- if location is not none %}
+LOCATION '{{ location }}'
+{% endif -%}
+{% if properties is not none -%} 
+TBLPROPERTIES (
+  {% for key, val in properties.items() %}
+  '{{ key }}'='{{ val }}'{%- if not loop.last %},{%- endif %}
+  {% endfor %}
+)
+{%- if comment is not none %}
+COMMENT '{{ location }}'
+{% endif -%}
     """
 }
 
@@ -41,15 +56,28 @@ class RegisteredRelation:
     relation: str
     alias: str
     type_: str
+    options: Dict[str, str]
+    properties: Dict[str, str]
+    location: str
+    comment: str
 
     @property
     def sql(self):
+        # merge source and relation level options
+        options = {**(self.source.options or {}), **(self.options or {})}
+
+        if self.source.driver in DATABASE_DRIVERS:
+            options[self.type_] = self.relation
+
         return CREATE_TEMPORARY_VIEW.render(
             alias=self.alias,
             relation_type=self.type_,
             relation=self.relation,
             source_driver=self.source.driver,
-            options=self.source.options,
+            options=options,
+            location=self.location,
+            properties=self.properties,
+            comment=self.comment,
         )
 
 
@@ -69,14 +97,28 @@ class ExternalRelationRegistry:
             )
 
     @classmethod
-    def register_relation(cls, source: str, relation: str, alias: str, type_: str):
+    def register_relation(
+            cls,
+            source: str,
+            relation: str,
+            alias: str,
+            type_: str,
+            options: Dict[str, str],
+            location: str,
+            properties: Dict[str, str],
+            comment: str,
+    ):
         if alias not in cls.registered_relations:
             assert source in cls.registered_sources, f'Source {source} not registered!'
             cls.registered_relations[alias] = RegisteredRelation(
                 source=cls.registered_sources[source],
                 relation=relation,
                 alias=alias,
-                type_=type_
+                type_=type_,
+                options=options,
+                location=location,
+                properties=properties,
+                comment=comment,
             )
 
     @classmethod
