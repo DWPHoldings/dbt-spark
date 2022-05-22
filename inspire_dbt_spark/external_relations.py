@@ -27,6 +27,7 @@ TBLPROPERTIES (
   '{{ key }}'='{{ val }}'{%- if not loop.last %},{%- endif %}
   {% endfor %}
 )
+{% endif -%}
 {%- if comment is not none %}
 COMMENT '{{ location }}'
 {% endif -%}
