@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2 # change to appropriate region
-          role-to-assume: arn:aws:iam::794844780483:role/codeartifact-githubactions-role
+          role-to-assume: arn:aws:iam::543886297237:role/github-actions-ops-inspire-role
           role-session-name: RepoPublishPackage
           role-duration-seconds: 900
 
