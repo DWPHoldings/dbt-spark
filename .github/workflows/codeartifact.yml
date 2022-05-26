@@ -60,4 +60,4 @@ jobs:
       - name: Publish Package
         run: |
           aws codeartifact login --tool twine --repository dbt-spark --domain applied-modeling --domain-owner 543886297237 &&
-          twine upload --repository dbt-spark dist/* --verbose
+          twine upload --repository codeartifact dist/* --verbose
