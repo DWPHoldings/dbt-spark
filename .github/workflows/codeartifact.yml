@@ -38,7 +38,7 @@ jobs:
         run: |
           pip install bumpversion
 
-      - name: Bump Version # run the run.py to get the latest data 
+      - name: Bump Version # run the run.py to get the latest data
         run: |
           if ["$PR_NUMBER" != ""]; then export PR_NUMBER=999999; fi
           # When this PR is opened, bump version to "<NEXT MINOR VERSION>.a{PR_NUMBER}.post1"
