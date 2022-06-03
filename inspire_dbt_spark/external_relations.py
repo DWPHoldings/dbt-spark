@@ -11,7 +11,7 @@ templates = {
     'create_temporary_view.sql': """
 CREATE OR REPLACE TEMPORARY VIEW {{ alias }}
 USING {{ source_driver }}
-{%- if options is not none %}
+{%- if options is not none and options|length>0 %}
 OPTIONS (
   {% for opt, val in options.items() %}
   {{ opt }} '{{ val }}'{%- if not loop.last %},{%- endif %}
@@ -21,7 +21,7 @@ OPTIONS (
 {%- if location is not none %}
 LOCATION '{{ location }}'
 {% endif -%}
-{% if properties is not none -%} 
+{% if properties is not none and properties|length>0 -%} 
 TBLPROPERTIES (
   {% for key, val in properties.items() %}
   '{{ key }}'='{{ val }}'{%- if not loop.last %},{%- endif %}
@@ -29,7 +29,7 @@ TBLPROPERTIES (
 )
 {% endif -%}
 {%- if comment is not none %}
-COMMENT '{{ location }}'
+COMMENT '{{ comment }}'
 {% endif -%}
     """
 }
