@@ -10,6 +10,7 @@ from dbt.events import AdapterLogger
 from dbt.utils import DECIMALS
 from pyspark.sql import DataFrame, Row, SparkSession
 
+from inspire_dbt_spark.connections import execute_query_async
 
 logger = AdapterLogger("Spark")
 NUMBERS = DECIMALS + (int, float)
@@ -107,7 +108,7 @@ class Cursor:
         if len(parameters) > 0:
             sql = sql % parameters
         spark_session = SparkSession.builder.enableHiveSupport().getOrCreate()
-        self._df = spark_session.sql(sql)
+        self._df = execute_query_async(spark_session, sql)
 
     def fetchall(self) -> list[Row] | None:
         """

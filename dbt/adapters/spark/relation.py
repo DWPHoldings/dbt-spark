@@ -7,7 +7,7 @@ from dbt.contracts.graph.parsed import ParsedSourceDefinition
 from dbt.exceptions import RuntimeException
 
 from dbt.adapters.spark.column import Self
-from dbt.adapters.spark.external_source_registry import ExternalSourceRegistry
+from inspire_dbt_spark.external_source_registry import ExternalSourceRegistry
 
 
 @dataclass
