@@ -3,7 +3,7 @@ import os
 import sys
 import re
 
-# require python 3.6 or newer
+# require python 3.7 or newer
 if sys.version_info < (3, 7):
     print('Error: dbt does not support this version of Python.')
     print('Please upgrade to Python 3.7 or higher.')
@@ -43,11 +43,6 @@ def _get_plugin_version_dict():
         return match.groupdict()
 
 
-def _get_plugin_version():
-    parts = _get_plugin_version_dict()
-    return "{major}.{minor}.{patch}{prekind}{pre}".format(**parts)
-
-
 # require a compatible minor version (~=), prerelease if this is a prerelease
 def _get_dbt_core_version():
     parts = _get_plugin_version_dict()
@@ -57,7 +52,7 @@ def _get_dbt_core_version():
 
 # TODO remove old logic and add to versionBump script
 package_name = "dbt-spark"
-package_version = "1.0.0"
+package_version = "1.1.0"
 dbt_core_version = _get_dbt_core_version()
 description = """The Apache Spark adapter plugin for dbt"""
 
@@ -66,7 +61,10 @@ pyhive_extras = [
     'PyHive[hive]>=0.6.0,<0.7.0',
     'thrift>=0.11.0,<0.16.0',
 ]
-all_extras = odbc_extras + pyhive_extras
+session_extras = [
+    "pyspark>=3.0.0,<4.0.0"
+]
+all_extras = odbc_extras + pyhive_extras + session_extras
 
 setup(
     name=package_name,
@@ -89,8 +87,9 @@ setup(
     ],
     extras_require={
         "ODBC": odbc_extras,
-        "PyHive":  pyhive_extras,
-        "all": all_extras
+        "PyHive": pyhive_extras,
+        "session": session_extras,
+        "all": all_extras,
     },
     zip_safe=False,
     classifiers=[
