@@ -30,7 +30,7 @@ def _query_session(session, query):
     except Exception as ex:
         traceback.print_exc()
         logger.warn(ex)
-    return session.sql(query).toPandas()
+    return session.sql(query)
 
 
 async def _wait_loop(event: threading.Event):
