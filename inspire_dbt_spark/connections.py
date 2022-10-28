@@ -70,10 +70,10 @@ def execute_query_async(session, query):
     try:
 
         logger.debug('Registering External Sources . . .')
-        for source in ExternalSourceRegistry.source_registry.values():
+        for source in ExternalSourceRegistry.source_registry.copy().values():
             logger.debug(f'Registering source [{source}]')
             register_external_source(source_name=source.name, driver=source.driver_name, options=source.options)
-        for relation in ExternalSourceRegistry.relation_registry.values():
+        for relation in ExternalSourceRegistry.relation_registry.copy().values():
             logger.debug(f'Registering relation [{relation}]')
             register_external_relation(
                 source=relation.source.name,
