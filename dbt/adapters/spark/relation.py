@@ -64,7 +64,7 @@ class SparkRelation(BaseRelation):
             )
         source = self.path.database or self.path.schema
         if source in ExternalSourceRegistry.source_registry:
-            for xr in ExternalSourceRegistry.relation_registry.values():
+            for xr in ExternalSourceRegistry.relation_registry.copy().values():
                 if xr.source.name == source and xr.alias == self.path.identifier:
                     return xr.alias
         return super().render()
