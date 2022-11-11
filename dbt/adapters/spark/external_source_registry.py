@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -30,17 +31,22 @@ class ExternalSourceRegistry(object):
     @classmethod
     def register_source(cls, name: str, driver_name: str, options: Dict[str, str]):
         if name not in cls.source_registry:
-            cls.source_registry[name] = RegisteredSource(
+            sr = deepcopy(cls.source_registry)
+            sr[name] = RegisteredSource(
                 name=name,
                 driver_name=driver_name,
                 options=options
             )
+            cls.source_registry = sr
 
     @classmethod
     def register_external_relation(cls, source, alias, relation, relation_type):
         assert source in cls.source_registry, f'Source {source} not registered!'
-        cls.relation_registry[alias] = RegisteredExternalRelation(
-            source=cls.source_registry[source],
-            alias=alias,
-            relation=relation,
-            relation_type=relation_type)
+        if alias not in cls.relation_registry:
+            rr = deepcopy(cls.relation_registry)
+            rr[alias] = RegisteredExternalRelation(
+                source=cls.source_registry[source],
+                alias=alias,
+                relation=relation,
+                relation_type=relation_type)
+            cls.relation_registry = rr

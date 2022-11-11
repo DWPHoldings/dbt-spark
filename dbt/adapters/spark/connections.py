@@ -428,10 +428,10 @@ class PySparkConnectionWrapper(PyhiveConnectionWrapper):
         try:
 
             logger.debug('Registering External Sources . . .')
-            for source in ExternalSourceRegistry.source_registry.copy().values():
+            for source in ExternalSourceRegistry.source_registry.values():
                 logger.debug(f'Registering source [{source}]')
                 register_external_source(source_name=source.name, driver=source.driver_name, options=source.options)
-            for relation in ExternalSourceRegistry.relation_registry.copy().values():
+            for relation in ExternalSourceRegistry.relation_registry.values():
                 logger.debug(f'Registering relation [{relation}]')
                 register_external_relation(
                     source=relation.source.name,

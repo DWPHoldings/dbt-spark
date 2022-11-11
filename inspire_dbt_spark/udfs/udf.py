@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Any, Set
 
@@ -39,9 +40,12 @@ class UDFRegistry:
     def register_udf(
             cls, alias: str, udf: Callable, return_type: Any = None, pandas_udf_type: pdf.PandasUDFType = None
     ):
-        cls.registry[alias] = RegisteredUDF(
-            alias=alias, udf=udf, return_type=return_type, pandas_udf_type=pandas_udf_type
-        )
+        if alias not in cls.registry:
+            r = deepcopy(cls.registry)
+            r[alias] = RegisteredUDF(
+                alias=alias, udf=udf, return_type=return_type, pandas_udf_type=pandas_udf_type
+            )
+            cls.registry = r
 
     @classmethod
     def load_plugins(cls):
