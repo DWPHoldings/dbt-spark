@@ -57,7 +57,7 @@ class UDFRegistry:
     def initialize_udfs(cls, spark):
         if len(cls._existing_functions) == 0:
             cls._existing_functions = set([t.name for t in spark.catalog.listFunctions('default')])
-        for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.values()):
+        for udf in filter(lambda u: u.alias not in cls._existing_functions, cls.registry.copy().values()):
             print(f'Registering UDF: {udf.alias} [{udf.udf}. {udf.pandas_udf_type}, {udf.return_type}]')
             logger.info(f'Registering UDF: {udf.alias} [{udf.udf}]')
             if udf.pandas_udf_type is not None:
