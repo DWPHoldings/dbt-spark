@@ -132,7 +132,7 @@
   {% if temporary -%}
     {{ create_temporary_view(relation, sql) }}
   {%- else -%}
-    {% if config.get('file_format', validator=validation.any[basestring]) == 'delta' %}
+    {% if config.get('file_format', validator=validation.any[basestring]) in ['delta', 'iceberg'] %}
       create or replace table {{ relation }}
     {% else %}
       create table {{ relation }}
@@ -234,7 +234,7 @@
 {% endmacro %}
 
 {% macro spark__alter_column_comment(relation, column_dict) %}
-  {% if config.get('file_format', validator=validation.any[basestring]) in ['delta', 'hudi'] %}
+  {% if config.get('file_format', validator=validation.any[basestring]) in ['delta', 'hudi', 'iceberg'] %}
     {% for column_name in column_dict %}
       {% set comment = column_dict[column_name]['description'] %}
       {% set escaped_comment = comment | replace('\'', '\\\'') %}

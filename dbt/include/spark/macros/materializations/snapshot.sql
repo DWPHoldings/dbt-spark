@@ -83,18 +83,18 @@
           identifier=target_table,
           type='table') -%}
 
-  {%- if file_format not in ['delta', 'hudi'] -%}
+  {%- if file_format not in ['delta', 'hudi', 'iceberg'] -%}
     {% set invalid_format_msg -%}
       Invalid file format: {{ file_format }}
-      Snapshot functionality requires file_format be set to 'delta' or 'hudi'
+      Snapshot functionality requires file_format be set to 'delta', 'iceberg', or 'hudi'
     {%- endset %}
     {% do exceptions.raise_compiler_error(invalid_format_msg) %}
   {% endif %}
 
   {%- if target_relation_exists -%}
-    {%- if not target_relation.is_delta and not target_relation.is_hudi -%}
+    {%- if not target_relation.is_delta and not target_relation.is_hudi and not target_relation.is_iceberg -%}
       {% set invalid_format_msg -%}
-        The existing table {{ model.schema }}.{{ target_table }} is in another format than 'delta' or 'hudi'
+        The existing table {{ model.schema }}.{{ target_table }} is in another format than 'delta', 'iceberg' or 'hudi'
       {%- endset %}
       {% do exceptions.raise_compiler_error(invalid_format_msg) %}
     {% endif %}

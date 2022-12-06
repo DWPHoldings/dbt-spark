@@ -30,6 +30,7 @@ class SparkRelation(BaseRelation):
     include_policy: SparkIncludePolicy = SparkIncludePolicy()
     quote_character: str = "`"
     is_delta: Optional[bool] = None
+    is_iceberg: Optional[bool] = None
     is_hudi: Optional[bool] = None
     information: Optional[str] = None
 

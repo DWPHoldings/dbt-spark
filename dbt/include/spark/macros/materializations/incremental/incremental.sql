@@ -28,11 +28,12 @@
   {{ run_hooks(pre_hooks) }}
 
   {% set is_delta = (file_format == 'delta' and existing_relation.is_delta) %}
+  {% set is_iceberg = (file_format == 'iceberg' and existing_relation.is_iceberg) %}
 
   {% if existing_relation is none %}
     {% set build_sql = create_table_as(False, target_relation, sql) %}
   {% elif existing_relation.is_view or full_refresh_mode %}
-    {% if not is_delta %} {#-- If Delta, we will `create or replace` below, so no need to drop --#}
+    {% if not (is_delta or is_iceberg) %} {#-- If Delta, we will `create or replace` below, so no need to drop --#}
       {% do adapter.drop_relation(existing_relation) %}
     {% endif %}
     {% set build_sql = create_table_as(False, target_relation, sql) %}
