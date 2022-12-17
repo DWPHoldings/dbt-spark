@@ -61,6 +61,8 @@ class RegisteredRelation:
     properties: Dict[str, str]
     location: str
     comment: str
+    cache: bool
+    cache_storage_level: str
 
     @property
     def sql(self):
@@ -79,6 +81,7 @@ class RegisteredRelation:
             location=self.location,
             properties=self.properties,
             comment=self.comment,
+            cache=self.cache,
         )
 
 
@@ -108,6 +111,8 @@ class ExternalRelationRegistry:
             location: str,
             properties: Dict[str, str],
             comment: str,
+            cache: bool,
+            cache_storage_level: str,
     ):
         if alias not in cls.registered_relations:
             assert source in cls.registered_sources, f'Source {source} not registered!'
@@ -120,6 +125,8 @@ class ExternalRelationRegistry:
                 location=location,
                 properties=properties,
                 comment=comment,
+                cache=cache,
+                cache_storage_level=cache_storage_level,
             )
 
     @classmethod
@@ -130,4 +137,7 @@ class ExternalRelationRegistry:
         for rel in filter(lambda r: r.alias not in cls._existing_tables, cls.registered_relations.copy().values()):
             # register the view
             spark.sql(rel.sql)
+            if rel.cache:
+                storage_level = rel.cache_storage_level or 'MEMORY_AND_DISK'
+                spark.sql(f"CACHE LAZY TABLE {rel.alias} OPTIONS('storageLevel'='{storage_level}')")
             cls._existing_tables.add(rel.alias)

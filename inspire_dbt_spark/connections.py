@@ -84,6 +84,8 @@ def execute_query_async(session, query):
                 location=relation.location,
                 properties=relation.properties,
                 comment=relation.comment,
+                cache=relation.cache,
+                cache_storage_level=relation.cache_storage_level,
             )
 
         logger.debug('Initializing dbt-spark . . .')

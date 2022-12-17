@@ -25,6 +25,8 @@ class RegisteredExternalRelation(object):
     location: str
     properties: Dict[str, str]  # tblproperties
     comment: str
+    cache: bool  # cache the table
+    cache_storage_level: str  # how to cache (default is MEMORY_AND_DISK)
 
 
 class ExternalSourceRegistry(object):
@@ -51,6 +53,8 @@ class ExternalSourceRegistry(object):
             location: str,
             properties: Dict[str, str],
             comment: str,
+            cache: bool,
+            cache_storage_level: str,
 
     ):
         assert source in cls.source_registry, f'Source {source} not registered!'
@@ -63,4 +67,6 @@ class ExternalSourceRegistry(object):
             location=location,
             properties=properties,
             comment=comment,
+            cache=cache,
+            cache_storage_level=cache_storage_level,
         )

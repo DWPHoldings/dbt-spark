@@ -20,6 +20,8 @@ def register_external_relation(
         properties: Dict[str, str],
         comment: str,
         type_: str = 'dbtable',
+        cache: bool = False,
+        cache_storage_level: str = None,
 ):
     ExternalRelationRegistry.register_relation(
         source=source,
@@ -30,6 +32,8 @@ def register_external_relation(
         location=location,
         properties=properties,
         comment=comment,
+        cache=cache,
+        cache_storage_level=cache_storage_level,
     )
 
 

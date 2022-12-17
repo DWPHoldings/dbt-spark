@@ -53,7 +53,9 @@ class SparkRelation(BaseRelation):
                 options=source.meta.get('options', dict()),
                 location=source.meta.get('location'),
                 properties=source.meta.get('properties', dict()),
-                comment=source.meta.get('comment')
+                comment=source.meta.get('comment'),
+                cache=source.meta.get('cache'),
+                cache_storage_level=source.meta.get('cache_storage_level'),
             )
         return super().create_from_source(source, **kwargs)
 
