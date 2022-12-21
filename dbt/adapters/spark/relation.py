@@ -48,7 +48,7 @@ class SparkRelation(BaseRelation):
             ExternalSourceRegistry.register_external_relation(
                 source=source.source_name,
                 alias=source.name,
-                relation=source.meta['external_table'],
+                relation=source.meta.get('external_table'),
                 relation_type=source.meta.get('external_table_type', 'dbtable'),
                 options=source.meta.get('options', dict()),
                 location=source.meta.get('location'),
