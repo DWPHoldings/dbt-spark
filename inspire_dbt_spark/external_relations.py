@@ -132,9 +132,7 @@ class ExternalRelationRegistry:
     @classmethod
     def initialize_external_relations(cls, spark):
         if len(cls._existing_tables) == 0:
-            print('Existing Tables:')
             cls._existing_tables = set([t.name for t in spark.catalog.listTables('default')])
-            print(cls._existing_tables)
         # filter views that have already been created
         for rel in filter(lambda r: r.alias not in cls._existing_tables, cls.registered_relations.copy().values()):
             # register the view
