@@ -137,8 +137,8 @@ class ExternalRelationRegistry:
         for rel in filter(lambda r: r.alias not in cls._existing_tables, cls.registered_relations.copy().values()):
             # register the view
             result = spark.sql(rel.sql)
-            logger.info(rel.sql)
-            logger.info(result)
+            print(rel.sql)
+            print(result)
             if rel.cache:
                 storage_level = rel.cache_storage_level or 'MEMORY_AND_DISK'
                 spark.sql(f"CACHE LAZY TABLE {rel.alias} OPTIONS('storageLevel'='{storage_level}')")
