@@ -138,13 +138,8 @@ class ExternalRelationRegistry:
         # filter views that have already been created
         for rel in filter(lambda r: r.alias not in cls._existing_tables, cls.registered_relations.copy().values()):
             # register the view
-            print(rel.sql)
-            try:
-                result = spark.sql(rel.sql)
-                print(result)
-                if rel.cache:
-                    storage_level = rel.cache_storage_level or 'MEMORY_AND_DISK'
-                    spark.sql(f"CACHE LAZY TABLE {rel.alias} OPTIONS('storageLevel'='{storage_level}')")
-                cls._existing_tables.add(rel.alias)
-            except Exception as ex:
-                logger.error(f"error registring source: {rel.alias}\n{str(ex)}")
+            spark.sql(rel.sql)
+            if rel.cache:
+                storage_level = rel.cache_storage_level or 'MEMORY_AND_DISK'
+                spark.sql(f"CACHE LAZY TABLE {rel.alias} OPTIONS('storageLevel'='{storage_level}')")
+            cls._existing_tables.add(rel.alias)

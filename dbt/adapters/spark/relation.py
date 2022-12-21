@@ -39,7 +39,7 @@ class SparkRelation(BaseRelation):
             cls: Type[Self], source: ParsedSourceDefinition, **kwargs: Any
     ) -> Self:
         print(f'registering source {source.name}, {source.source_name}, {source.meta}')
-        if source.meta.get('external_table'):
+        if source.meta.get('external_table') or source.source_meta.get('driver_name'):
             ExternalSourceRegistry.register_source(
                 name=source.source_name,
                 driver_name=source.source_meta.get('driver_name'),
