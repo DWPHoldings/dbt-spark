@@ -13,7 +13,7 @@ templates = {
 CREATE OR REPLACE TEMPORARY EXTERNAL TABLE {{ alias }}
 {%- else -%}
 CREATE OR REPLACE TEMPORARY VIEW {{ alias }}
-{%- endif -%}
+{%- endif %}
 USING {{ source_driver }}
 {%- if options is not none and options|length>0 %}
 OPTIONS (
