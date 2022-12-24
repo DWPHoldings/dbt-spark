@@ -51,6 +51,7 @@ class SparkRelation(BaseRelation):
                 relation=source.meta.get('external_table'),
                 relation_type=source.meta.get('external_table_type', 'dbtable'),
                 options=source.meta.get('options', dict()),
+                partition_by=source.meta.get('partition_by', list()),
                 location=source.meta.get('location'),
                 properties=source.meta.get('properties', dict()),
                 comment=source.meta.get('comment'),

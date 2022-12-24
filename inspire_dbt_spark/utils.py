@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from .udfs import UDFRegistry
 
@@ -16,6 +16,7 @@ def register_external_relation(
         relation: str,
         alias: str,
         options: Dict[str, str],
+        partition_by: List[str],
         location: str,
         properties: Dict[str, str],
         comment: str,
@@ -29,6 +30,7 @@ def register_external_relation(
         alias=alias,
         type_=type_,
         options=options,
+        partition_by=partition_by,
         location=location,
         properties=properties,
         comment=comment,

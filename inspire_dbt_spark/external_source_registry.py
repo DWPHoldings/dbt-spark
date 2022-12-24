@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 
 @dataclass()
@@ -22,6 +22,7 @@ class RegisteredExternalRelation(object):
     relation: str  # table or query in the source database
     relation_type: str  # type of relation `dbtable` or `query`
     options: Dict[str, str]  # driver specific options for this relation
+    partition_by: List[str]
     location: str
     properties: Dict[str, str]  # tblproperties
     comment: str
@@ -50,6 +51,7 @@ class ExternalSourceRegistry(object):
             relation,
             relation_type,
             options: Dict[str, str],
+            partition_by: List[str],
             location: str,
             properties: Dict[str, str],
             comment: str,
@@ -64,6 +66,7 @@ class ExternalSourceRegistry(object):
             relation=relation,
             relation_type=relation_type,
             options=options,
+            partition_by=partition_by,
             location=location,
             properties=properties,
             comment=comment,

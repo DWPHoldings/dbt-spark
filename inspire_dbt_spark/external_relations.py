@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Set
+from typing import Dict, Set, List
 
 from jinja2 import Environment, DictLoader, select_autoescape
 
@@ -15,6 +15,13 @@ USING {{ source_driver }}
 OPTIONS (
   {% for opt, val in options.items() %}
   {{ opt }} '{{ val }}'{%- if not loop.last %},{%- endif %}
+  {% endfor %}
+)
+{% endif -%}
+{%- if partition_by is not none and partition_by|length>0 %}
+PARTITION BY (
+  {% for col in partition_by %}
+  {{ col }}'{%- if not loop.last %},{%- endif %}
   {% endfor %}
 )
 {% endif -%}
@@ -58,6 +65,7 @@ class RegisteredRelation:
     alias: str
     type_: str
     options: Dict[str, str]
+    partition_by: List[str]
     properties: Dict[str, str]
     location: str
     comment: str
@@ -78,6 +86,7 @@ class RegisteredRelation:
             relation=self.relation,
             source_driver=self.source.driver,
             options=options,
+            partition_by=self.partition_by,
             location=self.location,
             properties=self.properties,
             comment=self.comment,
@@ -108,6 +117,7 @@ class ExternalRelationRegistry:
             alias: str,
             type_: str,
             options: Dict[str, str],
+            partition_by: List[str],
             location: str,
             properties: Dict[str, str],
             comment: str,
@@ -122,6 +132,7 @@ class ExternalRelationRegistry:
                 alias=alias,
                 type_=type_,
                 options=options,
+                partition_by=partition_by,
                 location=location,
                 properties=properties,
                 comment=comment,

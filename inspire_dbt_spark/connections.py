@@ -81,6 +81,7 @@ def execute_query_async(session, query):
                 alias=relation.alias,
                 type_=relation.relation_type,
                 options=relation.options,
+                partition_by=relation.partition_by,
                 location=relation.location,
                 properties=relation.properties,
                 comment=relation.comment,
