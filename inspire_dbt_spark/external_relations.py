@@ -9,7 +9,11 @@ DATABASE_DRIVERS = ['org.apache.spark.sql.jdbc', 'net.snowflake.spark.snowflake'
 
 templates = {
     'create_temporary_view.sql': """
+{%- if location is not none %}
+CREATE OR REPLACE TEMPORARY EXTERNAL TABLE {{ alias }}
+{%- else -%}
 CREATE OR REPLACE TEMPORARY VIEW {{ alias }}
+{%- endif -%}
 USING {{ source_driver }}
 {%- if options is not none and options|length>0 %}
 OPTIONS (
@@ -21,7 +25,7 @@ OPTIONS (
 {%- if partition_by is not none and partition_by|length>0 %}
 PARTITION BY (
   {% for col in partition_by %}
-  {{ col }}'{%- if not loop.last %},{%- endif %}
+  {{ col }}{%- if not loop.last %},{%- endif %}
   {% endfor %}
 )
 {% endif -%}
