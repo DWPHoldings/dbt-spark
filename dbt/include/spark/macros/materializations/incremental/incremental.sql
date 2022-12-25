@@ -41,7 +41,8 @@
   {%- elif existing_relation.is_view or should_full_refresh() -%}
     {#-- Relation must be dropped & recreated --#}
     {% set is_delta = (file_format == 'delta' and existing_relation.is_delta) %}
-    {% if not is_delta %} {#-- If Delta, we will `create or replace` below, so no need to drop --#}
+    {% set is_iceberg = (file_format == 'iceberg' and existing_relation.is_iceberg) %}
+    {% if not (is_delta or is_iceberg) %} {#-- If Delta, we will `create or replace` below, so no need to drop --#}
       {% do adapter.drop_relation(existing_relation) %}
     {% endif %}
     {%- call statement('main', language=language) -%}

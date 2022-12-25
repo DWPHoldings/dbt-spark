@@ -157,6 +157,7 @@ class SparkAdapter(SQLAdapter):
             _schema, name, _, information = row
             rel_type = RelationType.View if "Type: VIEW" in information else RelationType.Table
             is_delta = "Provider: delta" in information
+            is_iceberg = "Provider: iceberg" in information
             is_hudi = "Provider: hudi" in information
             relation = self.Relation.create(
                 schema=_schema,
@@ -164,6 +165,7 @@ class SparkAdapter(SQLAdapter):
                 type=rel_type,
                 information=information,
                 is_delta=is_delta,
+                is_iceberg=is_iceberg,
                 is_hudi=is_hudi,
             )
             relations.append(relation)
@@ -286,7 +288,7 @@ class SparkAdapter(SQLAdapter):
 
         with executor(self.config) as tpe:
             futures: List[Future[agate.Table]] = []
-            for info, schemas in schema_map.items():
+            for info, schemas in schema_map.copy().items():
                 for schema in schemas:
                     futures.append(
                         tpe.submit_connected(
