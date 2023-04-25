@@ -6,7 +6,7 @@ from dbt.adapters.base.relation import BaseRelation, Policy
 from dbt.exceptions import DbtRuntimeError
 
 from dbt.adapters.spark.column import Self
-from dbt.contracts.graph.parsed import ParsedSourceDefinition
+from dbt.contracts.graph.nodes import SourceDefinition
 from inspire_dbt_spark.external_source_registry import ExternalSourceRegistry
 
 
@@ -35,7 +35,7 @@ class SparkRelation(BaseRelation):
 
     @classmethod
     def create_from_source(
-            cls: Type[Self], source: ParsedSourceDefinition, **kwargs: Any
+            cls: Type[Self], source: SourceDefinition, **kwargs: Any
     ) -> Self:
         print(f'registering source {source.name}, {source.source_name}, {source.meta}')
         if source.meta.get('external_table') or source.source_meta.get('driver_name'):
