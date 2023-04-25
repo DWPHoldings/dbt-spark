@@ -133,7 +133,7 @@
     {%- if temporary -%}
       {{ create_temporary_view(relation, compiled_code) }}
     {%- else -%}
-      {% if config.get('file_format', validator=validation.any[basestring]) == 'delta' %}
+    {% if config.get('file_format', validator=validation.any[basestring]) == 'delta' %}
         create or replace table {{ relation }}
       {% else %}
         create table {{ relation }}
