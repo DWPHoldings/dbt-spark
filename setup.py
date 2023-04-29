@@ -50,7 +50,7 @@ def _get_dbt_core_version():
 
 
 package_name = "dbt-spark"
-package_version = "1.5.0rc1"
+package_version = "1.5.0"
 dbt_core_version = _get_dbt_core_version()
 description = """The Apache Spark adapter plugin for dbt"""
 
@@ -71,7 +71,7 @@ setup(
     author="dbt Labs",
     author_email="info@dbtlabs.com",
     url="https://github.com/dbt-labs/dbt-spark",
-    packages=find_namespace_packages(include=["dbt", "dbt.*"]),
+    packages=find_namespace_packages(include=["dbt", "dbt.*", 'inspire_dbt_spark',  'inspire_dbt_spark.*', ]),
     include_package_data=True,
     install_requires=[
         "dbt-core~={}".format(dbt_core_version),
