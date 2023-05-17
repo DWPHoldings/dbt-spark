@@ -101,7 +101,7 @@ def execute_query_async(session, query):
 
     except Exception as ex:
         logger.error(ex)
-        dbt.exceptions.raise_database_error(ex)
+        raise dbt.exceptions.DbtDatabaseError(str(ex).strip()) from ex
 
 
 def __finalize_spark():
