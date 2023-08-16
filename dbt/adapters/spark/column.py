@@ -56,7 +56,7 @@ class SparkColumn(dbtClassMixin, Column):  # type: ignore
             stats = {
                 stats.split(" ")[1]: int(stats.split(" ")[0]) for stats in raw_stats.split(", ")
             }
-            for key, val in stats.items():
+            for key, val in stats.copy().items():
                 table_stats[f"stats:{key}:label"] = key
                 table_stats[f"stats:{key}:value"] = val
                 table_stats[f"stats:{key}:description"] = ""
